@@ -1,10 +1,13 @@
 import * as traverse from 'json-schema-traverse'
 import {
 	analyzeGraph,
-	sortAnalysisResult,
+	analyzeGraphFast,
+	sortFullAnalysisResult,
+	sortFastAnalysisResult,
 	Edge,
 	Graph,
-	AnalysisResult,
+	FullAnalysisResult,
+	FastAnalysisResult,
 } from 'graph-cycles'
 
 
@@ -19,15 +22,38 @@ function decodeRef( ref: string | undefined )
 	return undefined;
 }
 
-interface TypeAnalysisResult extends AnalysisResult
+export interface CommonGraphResult
 {
 	graph: Graph;
 }
 
+export interface TypeAnalysisFullResult
+	extends FullAnalysisResult, CommonGraphResult
+{ }
+
+export interface TypeAnalysisFastResult
+	extends FastAnalysisResult, CommonGraphResult
+{ }
+
 export function analyzeTypes( schema: traverse.SchemaObject )
-: TypeAnalysisResult
+: TypeAnalysisFullResult
 {
-	const graph = Object
+	const graph = getJsonSchemaGraph( schema );
+
+	return { ...analyzeGraph( graph ), graph };
+}
+
+export function analyzeTypesFast( schema: traverse.SchemaObject )
+: TypeAnalysisFastResult
+{
+	const graph = getJsonSchemaGraph( schema );
+
+	return { ...analyzeGraphFast( graph ), graph };
+}
+
+export function getJsonSchemaGraph( schema: traverse.SchemaObject ): Graph
+{
+	return Object
 		.keys( schema.definitions ?? { } )
 		.map( ( type ): Edge =>
 		{
@@ -44,22 +70,31 @@ export function analyzeTypes( schema: traverse.SchemaObject )
 
 			return [ type, [ ...dependencies ] ];
 		} );
-
-	return { ...analyzeGraph( graph ), graph };
 }
 
-export function sortTypeAnalysisResult( result: TypeAnalysisResult )
-: TypeAnalysisResult
+function sortGraph( result: CommonGraphResult ): CommonGraphResult[ 'graph' ]
 {
 	const { graph } = result;
 
-	const sortedGraph =
-		[ ...graph ]
+	return [ ...graph ]
 		.sort( ( a, b ) => a[ 0 ].localeCompare( b[ 0 ] ) )
 		.map( ( [ from, to ] ): Edge => [ from, [ ...to ].sort( ) ] );
+}
 
+export function sortTypeAnalysisFullResult( result: TypeAnalysisFullResult )
+: TypeAnalysisFullResult
+{
 	return {
-		...sortAnalysisResult( result ),
-		graph: sortedGraph,
+		...sortFullAnalysisResult( result ),
+		graph: sortGraph( result ),
+	};
+}
+
+export function sortTypeAnalysisFastResult( result: TypeAnalysisFastResult )
+: TypeAnalysisFastResult
+{
+	return {
+		...sortFastAnalysisResult( result ),
+		graph: sortGraph( result ),
 	};
 }

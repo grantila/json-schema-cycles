@@ -10,15 +10,23 @@
 
 Detect cyclic dependencies in a JSON schema (or more precisely a JSON schema with the `definitions` property for the individual type definitions). This package doesn't handle external references, you need to use a ref-parser and squash all types into one schema before using this package.
 
+There are two types of analysis functions, `analyzeTypes` and `analyzeTypesFast`. The former provides a more in-depth analysis but can be slow on large input. If the input is extremely complex with massive cyclicity, it might even crash the process or run out of memory.
+
+Unless an in-depth analysis is necessary, choose the `analyzeTypesFast` function.
+
 
 ## Example
 
-`json-schema-cycles` exports a function `analyzeTypes` which takes a JSON schema object and returns a result object on the same format as [`AnalysisResult` in graph-cycles](https://github.com/grantila/graph-cycles#example) but with an additional `graph` property containing the type dependency graph as an array of `[ from: string, to: Array< string > ]` where `from` is the type and `to` is the dependent types.
+`analyzeTypes` takes a JSON schema object and returns a result object on the same format as [`FullAnalysisResult` in graph-cycles](https://github.com/grantila/graph-cycles/#full-analysis-mode) but with an additional `graph` property containing the type dependency graph as an array of `[ from: string, to: Array< string > ]` where `from` is the type and `to` is the dependent types.
+
+`analyzeTypesFast` also takes a JSON schema object, but returns an object on the same format as [`FastAnalysisResult` in graph-cycles](https://github.com/grantila/graph-cycles/#fast-analysis-mode), with the same additional `graph` property as from `analyzeTypes`.
 
 ```ts
-import { analyzeTypes } from 'json-schema-cycles'
+import { analyzeTypes, analyzeTypesFast } from 'json-schema-cycles'
 
-const { cycles, entrypoints, dependencies, all, graph } = analyzeTypes( schemaObject );
+const { cycles, entrypoints, dependencies, dependents, all, graph } = analyzeTypes( schemaObject );
+// or
+const { cyclic, dependencies, dependents, graph } = analyzeTypesFast( schemaObject );
 ```
 
 Check [graph-cycles](https://github.com/grantila/graph-cycles) for an understanding of the result object, apart from `graph`.
@@ -80,7 +88,7 @@ const jsonSchema = {
 </p>
 </details>
 
-the analysis will be:
+for a full analysis, the result will be (of the type `TypeAnalysisFullResult`):
 
 ```ts
 {
@@ -95,6 +103,27 @@ the analysis will be:
     ],
     all: [ 'User', 'Message', 'DM', 'Actions', 'Subscriber' ],
     dependencies: [ "Link" ],
+    dependents: [ ],
+    graph: [
+        [ 'Link', [ ] ],
+        [ 'Subscriber', [ 'User' ] ],
+        [ 'Message', [ 'Message', 'Link', 'Subscriber' ] ],
+        [ 'User', [ 'Message', 'User' ] ],
+        [ 'DM', [ 'User' ] ],
+        [ 'Actions', [ 'DM' ] ],
+        [ 'Product', [ ] ],
+        [ 'Cart', [ 'Product' ] ],
+    ],
+}
+```
+
+for a fast analysis, the result will be (of the type `TypeAnalysisFastResult`):
+
+```ts
+{
+    cyclic: [ 'User', 'Message', 'DM', 'Actions', 'Subscriber' ],
+    dependencies: [ "Link" ],
+    dependents: [ ],
     graph: [
         [ 'Link', [ ] ],
         [ 'Subscriber', [ 'User' ] ],
@@ -109,9 +138,9 @@ the analysis will be:
 ```
 
 
-## Helper
+## Helpers
 
-Another function `sortTypeAnalysisResult` is exported, which takes an analysis result (of type `TypeAnalysisResult`) and returns new object of the same type, with all fields sorted in a deterministic way, which is useful in tests.
+Two helper functions are exported; `sortTypeAnalysisFullResult` and `sortTypeAnalysisFastResult`. They take an analysis result (of type `TypeAnalysisFullResult` or `TypeAnalysisFastResult`) and return a new object of the same type, with all fields sorted in a deterministic way, which is useful in tests.
 
 
 
