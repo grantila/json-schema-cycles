@@ -88,13 +88,27 @@ const jsonSchema = {
 </p>
 </details>
 
+... which can be viewed as:
+
+```
+Cart -> Product
+                 __       ___
+                |  |     |   |
+                v  |     v   |
+Action -> DM -> User -> Message -> Link
+                  ^        |
+                  |        v
+                  `--- Subscriber
+
+```
+
 for a full analysis, the result will be (of the type `TypeAnalysisFullResult`):
 
 ```ts
 {
     entrypoints: [
-        [ "DM" ],
-        [ "Actions", "DM" ],
+        [ 'DM' ],
+        [ 'Actions', 'DM' ],
     ],
     cycles: [
         [ 'User' ],
@@ -102,7 +116,7 @@ for a full analysis, the result will be (of the type `TypeAnalysisFullResult`):
         [ 'User', 'Message', 'Subscriber' ],
     ],
     all: [ 'User', 'Message', 'DM', 'Actions', 'Subscriber' ],
-    dependencies: [ "Link" ],
+    dependencies: [ 'Link' ],
     dependents: [ ],
     graph: [
         [ 'Link', [ ] ],
@@ -122,7 +136,7 @@ for a fast analysis, the result will be (of the type `TypeAnalysisFastResult`):
 ```ts
 {
     cyclic: [ 'User', 'Message', 'DM', 'Actions', 'Subscriber' ],
-    dependencies: [ "Link" ],
+    dependencies: [ 'Link' ],
     dependents: [ ],
     graph: [
         [ 'Link', [ ] ],
