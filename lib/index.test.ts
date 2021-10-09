@@ -1,4 +1,6 @@
-import * as path from "path";
+import { fileURLToPath } from 'node:url'
+import * as path from "node:path"
+import { readFileSync } from "node:fs"
 
 import {
 	analyzeTypes,
@@ -8,8 +10,12 @@ import {
 } from './index'
 
 
+// @ts-ignore
+const __dirname = path.dirname( fileURLToPath( import.meta.url ) );
 const fixturePath = path.resolve( __dirname, '..', 'fixtures' );
-const largeJson = require( `${fixturePath}/large-json-schema.json` );
+const largeJson = JSON.parse(
+	readFileSync( `${fixturePath}/large-json-schema.json`, 'utf-8' )
+);
 
 
 function expectEqual< T >( got: T, expected: T )

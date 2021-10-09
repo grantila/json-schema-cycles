@@ -1,4 +1,4 @@
-import * as traverse from 'json-schema-traverse'
+import traverse from 'json-schema-traverse'
 import {
 	analyzeGraph,
 	analyzeGraphFast,

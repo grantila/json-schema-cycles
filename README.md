@@ -15,6 +15,11 @@ There are two types of analysis functions, `analyzeTypes` and `analyzeTypesFast`
 Unless an in-depth analysis is necessary, choose the `analyzeTypesFast` function.
 
 
+## Versions
+
+ * Since v2 this is a [pure ESM][pure-esm] package, and requires Node.js >=12.20. It cannot be used from CommonJS.
+
+
 ## Example
 
 `analyzeTypes` takes a JSON schema object and returns a result object on the same format as [`FullAnalysisResult` in graph-cycles](https://github.com/grantila/graph-cycles/#full-analysis-mode) but with an additional `graph` property containing the type dependency graph as an array of `[ from: string, to: Array< string > ]` where `from` is the type and `to` is the dependent types.
@@ -169,3 +174,4 @@ Two helper functions are exported; `sortTypeAnalysisFullResult` and `sortTypeAna
 [lgtm-url]: https://lgtm.com/projects/g/grantila/json-schema-cycles/context:javascript
 [node-version]: https://img.shields.io/node/v/json-schema-cycles
 [node-url]: https://nodejs.org/en/
+[pure-esm]: https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c
