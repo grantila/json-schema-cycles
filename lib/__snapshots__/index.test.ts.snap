@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`large input (fast mode) should handle really large json schema 1`] = `
-Object {
-  "cyclic": Array [
+{
+  "cyclic": [
     "Node",
     "ArrayExpression",
     "Expression",
@@ -234,7 +234,7 @@ Object {
     "While",
     "Aliases",
   ],
-  "dependencies": Array [
+  "dependencies": [
     "AnyTypeAnnotation",
     "ArgumentPlaceholder",
     "BooleanTypeAnnotation",
@@ -301,7 +301,7 @@ Object {
     "RegexLiteral",
     "TSBaseType",
   ],
-  "dependents": Array [
+  "dependents": [
     "Comment",
   ],
 }
